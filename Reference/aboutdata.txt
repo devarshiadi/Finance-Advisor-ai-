@@ -1,0 +1,118 @@
+Columns in the dataset:
+['Name', 'Age', 'City', 'Profession', 'Salary', 'Expenses', 'Savings', 'Lifecycle Stage', 'Risk Appetite', 'Investment Horizon', 'Equity (%)', 'Debt (%)', 'Gold (%)', 'FD/Cash (%)']
+
+Preview of the data:
+           Name  Age       City         Profession  Salary  Expenses  Savings  \
+0  Rohan Sharma   28     Mumbai  Software Engineer   85000     65000    20000   
+1   Priya Patel   45      Delhi             Doctor  220000    150000    70000   
+2   Arjun Singh   60  Bangalore     Retired Banker   45000     40000     5000   
+3   Anika Reddy   22  Hyderabad            Student   15000     14000     1000   
+4  Vikram Mehta   35       Pune  Marketing Manager  140000    100000    40000   
+
+  Lifecycle Stage Risk Appetite Investment Horizon  Equity (%)  Debt (%)  \
+0    Early Career        Medium          Long-term          45        25   
+1      Mid-Career        Medium        Medium-term          40        30   
+2         Retired           Low         Short-term          10        40   
+3         Student           Low         Short-term           0        30   
+4    Early Career          High          Long-term          70        15   
+
+   Gold (%)  FD/Cash (%)  
+0        10           20  
+1        10           20  
+2        15           35  
+3         5           65  
+4         5           10  
+
+Data types:
+Name                  object
+Age                    int64
+City                  object
+Profession            object
+Salary                 int64
+Expenses               int64
+Savings                int64
+Lifecycle Stage       object
+Risk Appetite         object
+Investment Horizon    object
+Equity (%)             int64
+Debt (%)               int64
+Gold (%)               int64
+FD/Cash (%)            int64
+dtype: object
+
+Unique values in 'City':
+['Mumbai' 'Delhi' 'Bangalore' 'Hyderabad' 'Pune' 'Chennai' 'Jaipur'
+ 'Kochi' 'Kolkata' 'Ahmedabad' 'Gurgaon' 'Lucknow' 'Nagpur' 'Chandigarh'
+ 'Surat' 'Indore' 'Bhopal']
+
+Unique values in 'Profession':
+['Software Engineer' 'Doctor' 'Retired Banker' 'Student'
+ 'Marketing Manager' 'Teacher' 'Freelancer' 'Architect' 'Business Owner'
+ 'Nurse' 'Product Manager' 'CA' 'Data Analyst' 'Retired Professor'
+ 'Journalist' 'Graphic Designer' 'Sales Executive' 'HR Manager' 'Intern'
+ 'Dentist' 'Lawyer' 'Content Creator' 'Pensioner' 'UX Designer'
+ 'Government Employee' 'Fashion Designer' 'Startup Founder'
+ 'Homemaker (Investor)' 'Investment Banker' 'IT Consultant'
+ 'College Student' 'Pharmacist' 'Textile Business Owner' 'Event Planner'
+ 'Film Producer' 'Nutritionist' 'Retired Army Officer'
+ 'Social Media Manager' 'Airline Pilot' 'Biotech Researcher'
+ 'Real Estate Agent' 'AI Engineer' 'Retired Teacher' 'Financial Analyst'
+ 'Software Developer' 'NGO Director' 'Fitness Trainer' 'Digital Marketer'
+ 'Content Strategist' 'Retired Engineer' 'UI Developer'
+ 'Operations Manager' 'Corporate Lawyer' 'School Principal'
+ 'AI Researcher' 'Junior Doctor' 'Finance Manager' 'Fashion Blogger'
+ 'HR Consultant' 'Video Editor' 'Small Business Owner' 'Dietitian'
+ 'Supply Chain Manager' 'Interior Designer' 'Sales Manager' 'PR Executive'
+ 'Logistics Head' 'Content Writer' 'Retired Govt. Employee'
+ 'Marketing Lead' 'IT Manager' 'Startup Intern' 'Export Manager'
+ 'Fitness Instructor' 'Real Estate Broker' 'Event Manager'
+ 'Software Trainee' 'Data Scientist' 'HR Director' 'Hotel Manager'
+ 'Social Worker' 'Cybersecurity Expert' 'E-commerce Manager'
+ 'Bank Manager' 'Retired IT Manager' 'UX Researcher' 'Product Designer'
+ 'Cybersecurity Analyst' 'Podcast Producer' 'E-commerce Seller'
+ 'Cloud Architect' 'Corporate Trainer' 'AI Trainer' 'Supply Chain Head'
+ 'Product Owner' 'UI/UX Designer' 'Finance Director'
+ 'Sustainability Consultant' 'Retired Bank Manager'
+ 'Social Media Influencer' 'Blockchain Developer' 'NGO Head'
+ 'Data Engineer' 'Event Curator' 'CTO' 'Content Marketer'
+ 'Retired Army Major' 'AR/VR Developer' 'Logistics Manager' 'VP Sales'
+ 'EdTech Founder' 'SEO Specialist' 'Yoga Instructor' 'IT Director'
+ 'App Developer' 'Consultant Cardiologist' 'Freelance Writer'
+ 'Cloud Engineer' 'Retired CA' 'Digital Artist' 'Retired Pilot'
+ 'Graphic Animator' 'AI Ethicist' 'School Trustee' 'Robotics Engineer'
+ 'Fashion Stylist' 'Retired Nurse' 'AI Ethics Consultant' 'Drone Engineer'
+ 'Retired Bank Clerk' 'Digital Nomad' 'CFO' 'Sustainability Analyst'
+ 'Retired Journalist' 'Social Entrepreneur' 'DevOps Engineer'
+ 'School Counselor' 'Retired Army Colonel' 'AR Developer' 'Sales Director'
+ 'EdTech Consultant' 'SEO Expert' 'Cardiologist' '3D Artist' 'HR Head'
+ 'Animator' 'Fashion Influencer']
+
+Unique values in 'Lifecycle Stage':
+['Early Career' 'Mid-Career' 'Retired' 'Student' 'Late Career']
+
+Unique values in 'Risk Appetite':
+['Medium' 'Low' 'High']
+
+Unique values in 'Investment Horizon':
+['Long-term' 'Medium-term' 'Short-term']
+
+Numerical columns summary:
+              Salary       Expenses       Savings  Equity (%)    Debt (%)  \
+count     198.000000     198.000000    198.000000  198.000000  198.000000   
+mean   115075.757576   84686.868687  30388.888889   39.469697   28.308081   
+std     69388.842695   48499.494260  21425.713424   20.713089   11.534149   
+min      8000.000000    7500.000000    500.000000    0.000000   10.000000   
+25%     60000.000000   48000.000000  10000.000000   25.000000   20.000000   
+50%     95000.000000   70000.000000  25000.000000   45.000000   25.000000   
+75%    163750.000000  118750.000000  45000.000000   50.000000   30.000000   
+max    310000.000000  230000.000000  90000.000000   70.000000   55.000000   
+
+         Gold (%)  FD/Cash (%)  
+count  198.000000   198.000000  
+mean     8.434343    23.787879  
+std      3.427751    16.426902  
+min      0.000000    10.000000  
+25%      5.000000    15.000000  
+50%     10.000000    20.000000  
+75%     10.000000    20.000000  
+max     15.000000    80.000000 
