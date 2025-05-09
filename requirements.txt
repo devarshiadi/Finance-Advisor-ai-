@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic[email]
+python-jose[cryptography]
+passlib[bcrypt]
+joblib
+pandas
+python-multipart
+Jinja2
+# psycopg2-binary # Add if using PostgreSQL
+# alembic # Add if using Alembic for migrations
+# python-dotenv # Add if using .env files for configuration

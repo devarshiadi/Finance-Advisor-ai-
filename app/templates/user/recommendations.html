@@ -1,0 +1,82 @@
+{% extends "partials/base.html" %}
+
+{% block title %}Market Trends & Recommendations - Financial Advisor{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Market Trends & Recommendations</h1>
+            <p>Stay updated with the latest market information and our curated recommendations.</p>
+        </div>
+    </div>
+
+    <!-- Current Market Prices -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Current Stock Prices</h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% if market_data.stocks %}
+                        {% for stock in market_data.stocks %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ stock.name }}</span>
+                            <span>
+                                <strong>{{ stock.price }}</strong> 
+                                <small class="ms-2 {% if '+' in stock.change %}text-success{% elif '-' in stock.change %}text-danger{% else %}text-muted{% endif %}">
+                                    ({{ stock.change }})
+                                </small>
+                            </span>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">Stock data not available.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">Gold Price</h4>
+                </div>
+                <div class="card-body">
+                    {% if market_data.gold_price %}
+                    <p class="card-text fs-5">{{ market_data.gold_price }}</p>
+                    {% else %}
+                    <p class="card-text">Gold price data not available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Stocks -->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Recommended Stocks</h4>
+                </div>
+                <div class="card-body">
+                    {% if market_data.recommended_stocks %}
+                        {% for stock in market_data.recommended_stocks %}
+                        <div class="mb-3 p-2 border-bottom">
+                            <h5>{{ stock.name }}</h5>
+                            <p class="mb-1">{{ stock.reason }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No specific stock recommendations at this time.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{{ url_for('user_homepage') }}" class="btn btn-secondary">&laquo; Back to Homepage</a>
+    </div>
+</div>
+{% endblock %}

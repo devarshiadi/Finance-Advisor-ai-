@@ -1,0 +1,133 @@
+{% extends "partials/base.html" %}
+
+{% block title %}Login - Financial Advisor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Login</h2>
+                
+                {% if request.query_params.get("error") %}
+                <div class="alert alert-danger" role="alert">
+                    {{ request.query_params.get("error") }}
+                </div>
+                {% endif %}
+                {% if request.query_params.get("message") %}
+                <div class="alert alert-info" role="alert">
+                    {{ request.query_params.get("message") }}
+                </div>
+                {% endif %}
+
+                <form id="loginForm" method="post">
+                    <!-- FastAPI's OAuth2PasswordRequestForm expects 'username' and 'password' -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">Show</button>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+                <p class="mt-3 text-center">
+                    Don't have an account? <a href="{{ url_for('signup_page_render') }}">Sign up here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const loginForm = document.getElementById('loginForm');
+    const togglePasswordButton = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    if (togglePasswordButton && passwordInput) {
+        togglePasswordButton.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? 'Show' : 'Hide';
+        });
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const formData = new FormData(loginForm);
+            
+            // We will post to /auth/token as expected by OAuth2PasswordRequestForm
+            try {
+                const response = await fetch("{{ url_for('login_for_access_token') }}", {
+                    method: 'POST',
+                    body: formData // FormData will be correctly encoded as application/x-www-form-urlencoded
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('accessToken', result.access_token);
+                    localStorage.setItem('tokenType', result.token_type);
+
+                    // Fetch user details to check if admin for redirect
+                    try {
+                        const userMeResponse = await fetch("{{ url_for('read_users_me') }}", {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${result.access_token}`
+                            }
+                        });
+                        if (userMeResponse.ok) {
+                            const userData = await userMeResponse.json();
+                            if (userData.is_admin) {
+                                window.location.href = "{{ url_for('admin_dashboard_shell') }}"; // Corrected route name
+                            } else {
+                                window.location.href = "{{ url_for('user_homepage') }}";
+                            }
+                        } else {
+                            // Fallback to user homepage if /users/me fails, or show error
+                            console.error("Failed to fetch user details for redirect.");
+                            window.location.href = "{{ url_for('user_homepage') }}";
+                        }
+                    } catch (e) {
+                        console.error("Error fetching user details:", e);
+                        window.location.href = "{{ url_for('user_homepage') }}"; // Fallback
+                    }
+                } else {
+                    // Display error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'alert alert-danger mt-3';
+                    errorDiv.textContent = result.detail || 'Login failed. Please check your credentials.';
+                    // Clear previous errors
+                    const existingError = loginForm.querySelector('.alert-danger');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+                    loginForm.prepend(errorDiv);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger mt-3';
+                errorDiv.textContent = 'An unexpected error occurred. Please try again.';
+                const existingError = loginForm.querySelector('.alert-danger');
+                if (existingError) {
+                    existingError.remove();
+                }
+                loginForm.prepend(errorDiv);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

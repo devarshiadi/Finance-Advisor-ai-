@@ -1,0 +1,44 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('read_root') }}">FinAdvisor</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if request.state.user %} {# Check if user is available in request state (set by middleware or dependency) #}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.url.path == url_for('user_homepage') %}active{% endif %}" href="{{ url_for('user_homepage') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.url.path == url_for('recommendations_page') %}active{% endif %}" href="{{ url_for('recommendations_page') }}">Market Trends</a>
+                    </li>
+                    {% if request.state.user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.url.path.startswith(url_for('admin_dashboard')) %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                {# Logged-in user items - Initially hidden, shown by JS if token exists #}
+                <li class="nav-item" id="navWelcomeItem" style="display: none;">
+                    <span class="navbar-text me-2" id="navUserWelcome">
+                        Welcome!
+                    </span>
+                </li>
+                <li class="nav-item" id="navLogoutItem" style="display: none;">
+                    <a class="nav-link" href="#" id="logoutButton">Logout</a>
+                </li>
+                
+                {# Logged-out user items - Initially shown, hidden by JS if token exists #}
+                <li class="nav-item" id="navLoginItem">
+                    <a class="nav-link {% if request.url.path == url_for('login_page_render') or request.url.path == url_for('read_root') %}active{% endif %}" href="{{ url_for('login_page_render') }}">Login</a>
+                </li>
+                <li class="nav-item" id="navSignupItem">
+                    <a class="nav-link {% if request.url.path == url_for('signup_page_render') %}active{% endif %}" href="{{ url_for('signup_page_render') }}">Sign Up</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

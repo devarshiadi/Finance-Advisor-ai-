@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Financial Advisor</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+
+    <div class="container mt-4">
+        {# Removed get_flashed_messages block as it's not standard in FastAPI/Jinja2 alone #}
+        {# Specific pages can handle messages via query params or JS #}
+        {% block content %}{% endblock %}
+    </div>
+
+    {% include 'partials/footer.html' %}
+
+    <!-- Bootstrap JS Bundle CDN (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+    {% block scripts_extra %}{% endblock %}
+</body>
+</html>

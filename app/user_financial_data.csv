@@ -1,0 +1,10 @@
+UserID,UserEmail,ModelType,Timestamp,Name,Age,City,Profession,Salary,Expenses,Savings,Lifecycle Stage,Risk Appetite,Investment Horizon,Annual Salary Package,Monthly In-hand Salary,Total Monthly Expenses,Equity (%),Debt (%),Gold (%),FD/Cash (%)
+2,user1@gmail.com,base,2025-05-08 14:48:49,,,,,60000,20000,40000,Early Career,Medium,Medium-term,,,,35.6,26.3,7.1,31.0
+2,user1@gmail.com,enhanced,2025-05-08 14:50:49,,,Indore,Software Engineer,60000,40000,20000,Late Career,Medium,Medium-term,,,,32.3,40.7,9.0,18.0
+2,user1@gmail.com,rule_based,2025-05-08 14:52:36,,,,,,,,Early Career,Medium,Medium-term,700000,,30000,,,,
+3,user2@gmail.com,base,2025-05-08 15:25:39,,,,,90000,40000,50000,Mid-Career,Medium,Short-term,,,,36.9,27.2,10.5,25.4
+3,user2@gmail.com,enhanced,2025-05-08 15:28:12,,,Pune,Software Engineer,80000,60000,20000,Late Career,High,Long-term,,,,49.5,34.8,3.9,11.8
+4,user3@gmail.com,enhanced,2025-05-08 15:36:16,,,Pune,AI Ethics Consultant,90000,60000,30000,Mid-Career,Medium,Short-term,,,,37.2,27.6,11.5,23.7
+5,user7@gmail.com,base,2025-05-09 19:10:38,,,,,70000,50000,20000,Mid-Career,Medium,Short-term,,,,37.9,26.9,11.7,23.5
+5,user7@gmail.com,enhanced,2025-05-09 19:11:47,,,Bangalore,AI Engineer,80000,40000,40000,Late Career,High,Medium-term,,,,49.8,34.0,4.0,12.2
+5,user7@gmail.com,rule_based,2025-05-09 19:13:52,,,,,,,,Mid-Career,High,Short-term,700000,,40000,,,,

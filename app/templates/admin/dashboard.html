@@ -1,0 +1,175 @@
+{% extends "partials/base.html" %}
+
+{% block title %}Admin Dashboard - Financial Advisor{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Admin Dashboard</h1>
+        <span id="adminWelcomeMessage">Welcome, Admin!</span> {# Placeholder #}
+    </div>
+     <div id="authErrorMessage" class="alert alert-danger" role="alert" style="display: none;">
+        Authentication failed or insufficient privileges. Redirecting...
+    </div>
+    <div id="loadingMessage" class="alert alert-info" role="alert">
+        Loading dashboard data...
+    </div>
+
+    <!-- Search Users -->
+    <div id="searchCard" class="card shadow-sm mb-4" style="display: none;">
+        <div class="card-body">
+            <h5 class="card-title">Search Users</h5>
+            <form id="searchForm" method="get"> {# Changed action, will be handled by JS or page reload #}
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search by user email..." name="search" id="searchInput">
+                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div id="usersTableCard" class="card shadow-sm" style="display: none;">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">Registered Users</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Is Admin?</th>
+                            <th scope="col">Registered At</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- User rows will be inserted here by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="noUsersMessage" class="text-muted" style="display: none;"></p>
+        </div>
+    </div>
+    
+    <!-- Potentially add other admin functionalities here, like viewing all data inputs -->
+
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+    const accessToken = localStorage.getItem('accessToken');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const authErrorMessage = document.getElementById('authErrorMessage');
+    const searchCard = document.getElementById('searchCard');
+    const usersTableCard = document.getElementById('usersTableCard');
+    const usersTableBody = document.getElementById('usersTableBody');
+    const noUsersMessage = document.getElementById('noUsersMessage');
+    const adminWelcomeMessage = document.getElementById('adminWelcomeMessage');
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+
+    // 1. Check Authentication and Admin Status
+    if (!accessToken) {
+        authErrorMessage.textContent = 'No authentication token found. Redirecting to login...';
+        authErrorMessage.style.display = 'block';
+        loadingMessage.style.display = 'none';
+        setTimeout(() => { window.location.href = "{{ url_for('login_page_render') }}"; }, 2000);
+        return;
+    }
+
+    try {
+        const userMeResponse = await fetch("{{ url_for('read_users_me') }}", {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (!userMeResponse.ok) {
+            throw new Error(`Authentication failed: ${userMeResponse.status}`);
+        }
+
+        const currentUser = await userMeResponse.json();
+        if (!currentUser.is_admin) {
+            throw new Error('User is not authorized to view this page.');
+        }
+        
+        // Update welcome message
+        if(adminWelcomeMessage) adminWelcomeMessage.textContent = `Welcome, ${currentUser.email} (Admin)`;
+
+        // 2. Fetch Dashboard Data (handle search query)
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search');
+        if (searchQuery && searchInput) {
+             searchInput.value = searchQuery; // Populate search box if query exists
+        }
+        
+        const dataUrl = searchQuery 
+            ? `/admin/api/dashboard-data?search=${encodeURIComponent(searchQuery)}` 
+            : "/admin/api/dashboard-data";
+
+        const dashboardDataResponse = await fetch(dataUrl, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (!dashboardDataResponse.ok) {
+            throw new Error(`Failed to fetch dashboard data: ${dashboardDataResponse.status}`);
+        }
+
+        const data = await dashboardDataResponse.json();
+
+        // 3. Populate Table
+        usersTableBody.innerHTML = ''; // Clear previous results
+        if (data.users_list && data.users_list.length > 0) {
+            noUsersMessage.style.display = 'none';
+            data.users_list.forEach(user => {
+                const row = usersTableBody.insertRow();
+                row.innerHTML = `
+                    <th scope="row">${user.id}</th>
+                    <td>${user.email}</td>
+                    <td>
+                        <span class="badge bg-${user.is_admin ? 'success' : 'secondary'}">
+                            ${user.is_admin ? 'Yes' : 'No'}
+                        </span>
+                    </td>
+                    <td>${new Date(user.created_at).toLocaleString()}</td>
+                    <td>
+                        <a href="/admin/users/${user.id}" class="btn btn-sm btn-info">View Details</a>
+                    </td>
+                `;
+                 // Note: Using hardcoded URL /admin/users/${user.id} as url_for isn't available client-side easily.
+                 // Ensure this matches the route defined in admin.py for admin_view_user_details_shell
+            });
+        } else {
+            noUsersMessage.textContent = searchQuery ? 'No users found matching your search.' : 'No users registered yet.';
+            noUsersMessage.style.display = 'block';
+        }
+
+        // Show content now that data is loaded
+        loadingMessage.style.display = 'none';
+        searchCard.style.display = 'block';
+        usersTableCard.style.display = 'block';
+
+    } catch (error) {
+        console.error('Error loading admin dashboard:', error);
+        loadingMessage.style.display = 'none';
+        authErrorMessage.textContent = `Error: ${error.message}. Redirecting...`;
+        authErrorMessage.style.display = 'block';
+        localStorage.removeItem('accessToken'); // Clear token on error
+        localStorage.removeItem('tokenType');
+        setTimeout(() => { window.location.href = "{{ url_for('login_page_render') }}"; }, 3000);
+    }
+    
+    // Handle search form submission (reloads the page with query param)
+    if(searchForm) {
+        searchForm.addEventListener('submit', function(event) {
+            // Default form submission with GET will reload the page with the query param
+            // The page load logic above will then handle fetching the filtered data.
+            // No preventDefault needed unless doing a fetch-based update.
+        });
+    }
+});
+</script>
+{% endblock %}

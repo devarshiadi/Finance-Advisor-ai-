@@ -1,0 +1,112 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* Light grey background */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    flex: 1;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.card {
+    border: none; /* Softer look, rely on shadow */
+    transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15) !important;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+.btn-success:hover {
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+.btn-info:hover {
+    background-color: #117a8b;
+    border-color: #117a8b;
+}
+
+
+/* Specific to chatbot results for better visual separation */
+#recommendationDetails ul .list-group-item span.badge {
+    font-size: 0.9em;
+}
+
+/* Footer styling */
+footer.bg-light {
+    background-color: #e9ecef !important; /* A slightly different shade for footer */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    h1 {
+        font-size: 1.75rem;
+    }
+}
+
+/* Ensure body takes full height for sticky footer */
+html, body {
+    height: 100%;
+}
+
+/* --- Chatbot Interface Styles --- */
+#chatbox { 
+    height: 400px; 
+    overflow-y: auto; 
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    margin-bottom: 15px; 
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+.chat-message { margin-bottom: 10px; }
+.bot-message { text-align: left; }
+.user-message { text-align: right; }
+.message-bubble { 
+    display: inline-block; 
+    padding: 8px 12px; 
+    border-radius: 15px; 
+    max-width: 80%; 
+    word-wrap: break-word; /* Ensure long words break */
+}
+.bot-message .message-bubble { background-color: #e9ecef; color: #333; }
+.user-message .message-bubble { background-color: #0d6efd; color: white; }
+#userInputArea button.option-button { margin: 3px; }
+#userInputArea { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; } /* Added wrap */
+#userInputArea input, #userInputArea select { flex-grow: 1; min-width: 150px; } /* Added min-width */
+#optionsContainer { display: flex; flex-wrap: wrap; gap: 5px; } /* Styling for button container */
+.spinner-border-sm { width: 1rem; height: 1rem; }

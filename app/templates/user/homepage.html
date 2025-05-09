@@ -1,0 +1,137 @@
+{% extends "partials/base.html" %}
+
+{% block title %}User Dashboard - Financial Advisor{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Welcome, <span id="userEmailPlaceholder"></span>!</h1>
+            <p>Choose a financial advisory model to get started.</p>
+        </div>
+    </div>
+
+    <div id="modelSelectionCards" class="row row-cols-1 row-cols-md-3 g-4" style="display: none;">
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Base Model Advisor</h5>
+                    <p class="card-text">Get a fundamental portfolio recommendation based on your salary, expenses, savings, lifecycle stage, risk appetite, and investment horizon.</p>
+                    <a href="{{ url_for('chatbot_page', model_type='base') }}" class="btn btn-primary mt-auto">Start with Base Model</a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Enhanced Model Advisor</h5>
+                    <p class="card-text">Receive a more detailed portfolio recommendation, incorporating your profession and city in addition to the base model inputs.</p>
+                    <a href="{{ url_for('chatbot_page', model_type='enhanced') }}" class="btn btn-success mt-auto">Start with Enhanced Model</a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Rule-Based Advisor</h5>
+                    <p class="card-text">Get advice based on a predefined set of financial rules and best practices, considering your profile and financial details.</p>
+                    <a href="{{ url_for('chatbot_page', model_type='rule_based') }}" class="btn btn-info mt-auto">Start with Rule-Based Model</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="quickLinksSection" class="row mt-5" style="display: none;">
+        <div class="col">
+            <h4>Quick Links</h4>
+            <ul class="list-group">
+                <li class="list-group-item"><a href="{{ url_for('recommendations_page') }}">View Market Trends & Recommendations</a></li>
+                <!-- Add more links here if needed, e.g., to view past interactions -->
+            </ul>
+        </div>
+    </div>
+    <div id="loadingMessage" class="alert alert-info" role="alert" style="display: none;">
+        Loading user data...
+    </div>
+    <div id="authErrorMessage" class="alert alert-danger" role="alert" style="display: none;">
+        Authentication failed. Redirecting to login...
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+    const userEmailPlaceholder = document.getElementById('userEmailPlaceholder');
+    const modelSelectionCards = document.getElementById('modelSelectionCards');
+    const quickLinksSection = document.getElementById('quickLinksSection');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const authErrorMessage = document.getElementById('authErrorMessage');
+
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (!accessToken) {
+        authErrorMessage.textContent = 'No authentication token found. Redirecting to login...';
+        authErrorMessage.style.display = 'block';
+        setTimeout(() => {
+            window.location.href = "{{ url_for('login_page_render') }}";
+        }, 2000);
+        return;
+    }
+
+    loadingMessage.style.display = 'block';
+
+    try {
+        const response = await fetch("{{ url_for('read_users_me') }}", { // /auth/users/me
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        loadingMessage.style.display = 'none';
+
+        if (response.ok) {
+            const userData = await response.json();
+            if (userEmailPlaceholder) {
+                userEmailPlaceholder.textContent = userData.email;
+            }
+            // Show content that depends on authentication
+            if(modelSelectionCards) modelSelectionCards.style.display = 'flex'; // Or 'block' if that's better for layout
+            if(quickLinksSection) quickLinksSection.style.display = 'block';
+
+            // Update navbar if needed (more complex, requires navbar to have placeholders)
+            // For example, if navbar had <span id="navUserEmail"></span>
+            // const navUserEmail = document.getElementById('navUserEmail');
+            // if (navUserEmail) navUserEmail.textContent = `Welcome, ${userData.email}`;
+            // const logoutLink = document.getElementById('navLogoutLink'); // Assuming logout link has an ID
+            // if (logoutLink) logoutLink.style.display = 'block';
+            // const loginLink = document.getElementById('navLoginLink');
+            // if (loginLink) loginLink.style.display = 'none';
+
+
+        } else {
+            // Handle 401 or other errors from /auth/users/me
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('tokenType');
+            authErrorMessage.textContent = `Session expired or invalid. Redirecting to login... (Status: ${response.status})`;
+            authErrorMessage.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = "{{ url_for('login_page_render') }}";
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        loadingMessage.style.display = 'none';
+        authErrorMessage.textContent = 'Error loading user data. Redirecting to login...';
+        authErrorMessage.style.display = 'block';
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('tokenType');
+        setTimeout(() => {
+            window.location.href = "{{ url_for('login_page_render') }}";
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

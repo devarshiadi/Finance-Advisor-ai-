@@ -1,0 +1,170 @@
+{% extends "partials/base.html" %}
+
+{% block title %}{{ title }} - Financial Advisor{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 id="pageTitle">User Details</h1> {# Placeholder #}
+        <a href="{{ url_for('admin_dashboard_shell') }}" class="btn btn-secondary">&laquo; Back to Admin Dashboard</a>
+    </div>
+     <div id="authErrorMessage" class="alert alert-danger" role="alert" style="display: none;">
+        Authentication failed or insufficient privileges. Redirecting...
+    </div>
+    <div id="loadingMessage" class="alert alert-info" role="alert">
+        Loading user details...
+    </div>
+
+    <div id="userInfoCard" class="card shadow-sm mb-4" style="display: none;">
+        <div class="card-body">
+            <h5 class="card-title">User Information</h5>
+            <dl class="row" id="userInfoList">
+                {# User info will be populated here by JS #}
+            </dl>
+        </div>
+    </div>
+
+    <div id="userInputsCard" class="card shadow-sm" style="display: none;">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">Submitted Financial Inputs</h4>
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="userDataAccordion">
+                {# Accordion items will be populated here by JS #}
+            </div>
+             <p id="noInputsMessage" class="text-muted" style="display: none;">This user has not submitted any financial inputs yet.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+    const accessToken = localStorage.getItem('accessToken');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const authErrorMessage = document.getElementById('authErrorMessage');
+    const userInfoCard = document.getElementById('userInfoCard');
+    const userInputsCard = document.getElementById('userInputsCard');
+    const userInfoList = document.getElementById('userInfoList');
+    const userDataAccordion = document.getElementById('userDataAccordion');
+    const noInputsMessage = document.getElementById('noInputsMessage');
+    const pageTitle = document.getElementById('pageTitle');
+    
+    const targetUserIdStr = "{{ user_id }}"; // Get user_id as string from server context
+    const targetUserId = parseInt(targetUserIdStr); // Parse it to integer
+
+    // 1. Check Authentication and Admin Status
+    if (!accessToken || isNaN(targetUserId)) { // Also check if targetUserId is valid
+        authErrorMessage.textContent = 'No authentication token found. Redirecting to login...';
+        authErrorMessage.style.display = 'block';
+        loadingMessage.style.display = 'none';
+        setTimeout(() => { window.location.href = "{{ url_for('login_page_render') }}"; }, 2000);
+        return;
+    }
+
+    try {
+        // Verify admin status first (optional but good practice)
+        const userMeResponse = await fetch("{{ url_for('read_users_me') }}", {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (!userMeResponse.ok) throw new Error(`Authentication failed: ${userMeResponse.status}`);
+        const currentUser = await userMeResponse.json();
+        if (!currentUser.is_admin) throw new Error('User is not authorized to view this page.');
+
+        // 2. Fetch User Details Data
+        const detailsUrl = `/admin/api/users/${targetUserId}`;
+        const detailsResponse = await fetch(detailsUrl, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (!detailsResponse.ok) {
+            throw new Error(`Failed to fetch user details: ${detailsResponse.status}`);
+        }
+
+        const data = await detailsResponse.json();
+        const targetUser = data.target_user;
+        const userInputs = data.user_inputs;
+
+        // 3. Populate Page Content
+        loadingMessage.style.display = 'none';
+        
+        // Update Title
+        if(pageTitle && targetUser) pageTitle.textContent = `User Details: ${targetUser.email}`;
+        document.title = `User Details: ${targetUser.email} - Financial Advisor`; // Update browser tab title
+
+        // Populate User Info Card
+        if (userInfoList && targetUser) {
+            userInfoList.innerHTML = `
+                <dt class="col-sm-3">User ID:</dt>
+                <dd class="col-sm-9">${targetUser.id}</dd>
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">${targetUser.email}</dd>
+                <dt class="col-sm-3">Admin Status:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-${targetUser.is_admin ? 'success' : 'secondary'}">
+                        ${targetUser.is_admin ? 'Yes' : 'No'}
+                    </span>
+                </dd>
+                <dt class="col-sm-3">Registered At:</dt>
+                <dd class="col-sm-9">${new Date(targetUser.created_at).toLocaleString()}</dd>
+            `;
+            userInfoCard.style.display = 'block';
+        }
+
+        // Populate User Inputs Accordion
+        if (userDataAccordion) {
+            userDataAccordion.innerHTML = ''; // Clear previous
+            if (userInputs && userInputs.length > 0) {
+                noInputsMessage.style.display = 'none';
+                userInputs.forEach((inputItem, index) => {
+                    const itemId = `item-${index}`;
+                    const collapseId = `collapse-${index}`;
+                    const headingId = `heading-${index}`;
+
+                    let inputHtml = '<ul class="list-group">';
+                    for (const [key, value] of Object.entries(inputItem.input_data)) {
+                         inputHtml += `<li class="list-group-item"><strong>${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</strong> ${value}</li>`;
+                    }
+                    inputHtml += '</ul>';
+                    
+                    // Add output data if available and needed
+                    // let outputHtml = '';
+                    // if (inputItem.output_data) { ... }
+
+                    const accordionItem = document.createElement('div');
+                    accordionItem.className = 'accordion-item';
+                    accordionItem.innerHTML = `
+                        <h2 class="accordion-header" id="${headingId}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
+                                Input #${inputItem.id} - Model: <strong>${inputItem.model_type.charAt(0).toUpperCase() + inputItem.model_type.slice(1)}</strong> - Submitted: ${new Date(inputItem.timestamp).toLocaleString()}
+                            </button>
+                        </h2>
+                        <div id="${collapseId}" class="accordion-collapse collapse" aria-labelledby="${headingId}" data-bs-parent="#userDataAccordion">
+                            <div class="accordion-body">
+                                <h5>Input Data:</h5>
+                                ${inputHtml}
+                                <!-- Add outputHtml here if implemented -->
+                            </div>
+                        </div>
+                    `; // Removed Jinja2 comment from JS string literal
+                    userDataAccordion.appendChild(accordionItem);
+                });
+            } else {
+                noInputsMessage.style.display = 'block';
+            }
+             userInputsCard.style.display = 'block';
+        }
+
+    } catch (error) {
+        console.error('Error loading user details:', error);
+        loadingMessage.style.display = 'none';
+        authErrorMessage.textContent = `Error: ${error.message}. Redirecting...`;
+        authErrorMessage.style.display = 'block';
+        localStorage.removeItem('accessToken'); // Clear token on error
+        localStorage.removeItem('tokenType');
+        setTimeout(() => { window.location.href = "{{ url_for('login_page_render') }}"; }, 3000);
+    }
+});
+</script>
+{% endblock %}
